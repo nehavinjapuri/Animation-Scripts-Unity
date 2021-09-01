@@ -1,0 +1,98 @@
+//Be able to deconstruct a model and analyze chosen section closely.
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Configuration;
+using UnityEditorInternal;
+
+public class Dissect : MonoBehaviour
+{
+	public Vector3 zoomPosition;
+	public GameObject[] selectables;
+	public Vector3[] selectablePosition;
+	public GameObject volume;
+	private int zoomState;
+
+	[SerializeField] private string selectableTag = "Selectable";
+    [SerializeField] private Material highlightMaterial;
+    [SerializeField] private Material defaultMaterial;
+
+    private Transform _selection;
+    [SerializeField] private GameObject player;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+    	zoomState = 0;
+        zoomPosition = new Vector3(0f,1f,-7f);
+        selectables = GameObject.FindGameObjectsWithTag("Selectable");
+        selectablePosition = new Vector3[selectables.Length];
+        for (int i = 0; i<selectablePosition.Length;i++)
+        {
+        	selectablePosition[i] = selectables[i].transform.position;
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+    	if (Input.GetKeyDown("space"))
+        {
+        	zoomState = 0;
+        	for (int i = 0; i<selectablePosition.Length;i++)
+	        {
+	        	selectables[i].transform.position = selectablePosition[i];
+	        	selectables[i].transform.rotation = new Quaternion(0,0,0,0);
+	        	volume.SetActive(false);
+	        }
+
+        }
+
+        if (zoomState == 0)
+        {
+        	Blur();
+        }
+
+
+    }
+
+    void Blur()
+    {
+    	
+        if (_selection != null)
+        {
+            var selectionRenderer = _selection.GetComponent<MeshRenderer>();
+            selectionRenderer.material = defaultMaterial;
+            _selection = null;
+        }
+
+        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit hit = new RaycastHit();
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            var selection = hit.transform;
+            if (selection.CompareTag(selectableTag))
+            {
+
+                var SelectionRenderer = selection.GetComponent<MeshRenderer>();
+                if (SelectionRenderer != null)
+                {
+                    SelectionRenderer.material = highlightMaterial;
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                	selection.transform.position = zoomPosition;
+                	SelectionRenderer.material = defaultMaterial;
+                	volume.SetActive(true);
+                	zoomState = 1;
+                }
+            }
+
+            _selection = selection;
+
+        }
+    }
+}
+
