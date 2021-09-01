@@ -1,0 +1,216 @@
+//Editor Script
+using UnityEngine;
+using UnityEditor;
+
+public class ExampleWindow : EditorWindow
+{
+	string myString = "Model";
+	float amplitude = 1;
+	float speed = 1;
+	float rotSpeed = 1;
+	public static bool xDirection = false;
+	public static bool yDirection = false;
+	public static bool zDirection = false;
+	public static bool xDirectionRot = false;
+	public static bool yDirectionRot = false;
+	public static bool zDirectionRot = false;
+
+
+	
+	[MenuItem("Window/Example")]
+
+	public static void ShowWindow()
+	{
+		EditorWindow.GetWindow<ExampleWindow>("Example");
+	}
+	void OnGUI()
+	{
+		GUILayout.Label("Animation Editor", EditorStyles.boldLabel);
+		myString = EditorGUILayout.TextField("Name", myString);
+		amplitude = EditorGUILayout.Slider("Floating Amplitude",amplitude, 1, 100);
+
+		foreach (GameObject obj in Selection.gameObjects)
+		{
+			if (obj.GetComponent<Animations>() != null)
+			{
+
+				obj.GetComponent<Animations>().SetDistanceUpDown(amplitude);
+
+			}
+			
+		}
+
+		speed = EditorGUILayout.Slider("Floating Speed",speed, 1, 100);
+
+		foreach (GameObject obj in Selection.gameObjects)
+		{
+			if (obj.GetComponent<Animations>() != null)
+			{
+
+				obj.GetComponent<Animations>().SetSpeedUpDown(speed);
+
+			}
+			
+		}
+
+
+		xDirection = EditorGUILayout.Toggle("Float X", xDirection);		
+		yDirection = EditorGUILayout.Toggle("Float Y", yDirection);
+		zDirection = EditorGUILayout.Toggle("Float Z", zDirection);
+
+		rotSpeed = EditorGUILayout.Slider("Rotating Speed",rotSpeed, 1, 100);
+
+		foreach (GameObject obj in Selection.gameObjects)
+		{
+			if (obj.GetComponent<Animations>() != null)
+			{
+
+				obj.GetComponent<Animations>().SetRotSpeed(rotSpeed);
+
+			}
+			
+		}
+		xDirectionRot = EditorGUILayout.Toggle("Rotate X", xDirectionRot);		
+		yDirectionRot = EditorGUILayout.Toggle("Rotate Y", yDirectionRot);
+		zDirectionRot = EditorGUILayout.Toggle("Rotate Z", zDirectionRot);
+
+
+
+
+	}
+	
+    
+}
+
+//Regular Script
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
+
+
+public class Animations : MonoBehaviour
+{
+    
+    public GameObject a;
+  
+
+    
+    // Update is called once per frame
+    void Update()
+    {
+        FloatingAnimation();
+        RotatingAnimation();
+        
+    }
+    
+
+    public float speedUpDown = 1;
+ 	public float distanceUpDown = 1;
+ 	public int xTrue;
+ 	public int yTrue;
+ 	public int zTrue;
+    public int xTrueRot;
+    public int yTrueRot;
+    public int zTrueRot;
+    public float rotSpeed;
+
+    void FloatingAnimation()
+    {
+    	if (ExampleWindow.xDirection == true)
+    	{
+    		xTrue = 1;
+
+    	}
+    	else
+    	{
+    		xTrue = 0;
+    	}
+
+    	if (ExampleWindow.yDirection == true)
+    	{
+    		yTrue = 1;
+
+    	}
+    	else
+    	{
+    		yTrue = 0;
+    	}
+
+    	if (ExampleWindow.zDirection == true)
+    	{
+    		zTrue = 1;
+
+    	}
+    	else
+    	{
+    		zTrue = 0;
+    	}
+
+    	Vector3 mov = new Vector3 (Mathf.Sin(speedUpDown * Time.time) * distanceUpDown * xTrue, Mathf.Sin(speedUpDown * Time.time) * distanceUpDown * yTrue,Mathf.Sin(speedUpDown * Time.time) * distanceUpDown* zTrue);
+        transform.position = mov;
+
+    	
+    }
+
+    public void SetDistanceUpDown(float amplitude)
+    {
+    	distanceUpDown = amplitude;
+
+    }
+
+    public void SetSpeedUpDown(float speed)
+    {
+    	speedUpDown = speed;
+
+    }
+
+    public void SetRotSpeed(float speed)
+    {
+        rotSpeed = speed;
+
+    }
+
+    void RotatingAnimation()
+    {
+        if (ExampleWindow.xDirectionRot == true)
+        {
+            xTrueRot = 1;
+
+        }
+        else
+        {
+            xTrueRot = 0;
+        }
+
+        if (ExampleWindow.yDirectionRot == true)
+        {
+            yTrueRot = 1;
+
+        }
+        else
+        {
+            yTrueRot = 0;
+        }
+
+        if (ExampleWindow.zDirectionRot == true)
+        {
+            zTrueRot = 1;
+
+        }
+        else
+        {
+            zTrueRot = 0;
+        }
+
+        transform.Rotate (new Vector3 (rotSpeed*xTrueRot, rotSpeed*yTrueRot, rotSpeed*zTrueRot) * Time.deltaTime);
+
+    }
+
+    
+     
+ 
+}
+
